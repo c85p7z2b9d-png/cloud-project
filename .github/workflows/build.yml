@@ -1,17 +1,64 @@
-name: Docker Build Automation
+name: Cloud Deploy Automation
 
-# 1. Тригер: коли саме роботу прокидатися
 on:
   push:
     branches: [ "main" ]
 
-# 2. Кроки: що саме роботу робити
 jobs:
-  build-and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Check out our code
       uses: actions/checkout@v4
 
-    - name: Build Docker Image
-      run: docker build -t my-cloud-app:${{ github.sha }} .
+    - name: Deploy via SSH to AWS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+
+
+cat << 'EOF' > .github/workflows/build.yml
+name: Cloud Deploy Automation
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out our code
+      uses: actions/checkout@v4
+
+    - name: Deploy via SSH to AWS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # 1. Заходимо на сервер AWS і створюємо там папку для коду
+          mkdir -p ~/app && cd ~/app
+          
+          # 2. Записуємо свіжий код прямо на сервері
+          cat << 'INNER_EOF' > app.py
+          import time
+          print("🚀 Автоматичний сервер в AWS запустився!", flush=True)
+          while True:
+              print("💻 Сервер працює стабільно в хмарі...", flush=True)
+              time.sleep(5)
+          INNER_EOF
+
+          # 3. Збираємо Docker-коробку ПРЯМО всередині Амазону
+          docker build -t my-aws-app .
+
+          # 4. Про всяк випадок зупиняємо старий сервер, якщо він працював
+          docker stop my-running-aws-server || true
+          docker rm my-running-aws-server || true
+
+          # 5. Запускаємо наш свіжий оновлений Docker-контейнер на фоні
+          docker run -d --name my-running-aws-server my-aws-app
