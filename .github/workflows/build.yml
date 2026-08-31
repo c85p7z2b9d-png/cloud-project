@@ -12,39 +12,40 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-with:
-    role-to-assume: arn:aws:iam::325774504337:role/github-actions-ecr-role
-    aws-region: eu-central-1
-    
-    - name: Deploy to AWS via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ubuntu
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          mkdir -p ~/app && cd ~/app
-          
-          cat << 'INNER_EOF' > app.py
-          import time
-          print("🚀 Автоматичний сервер в AWS запустився!", flush=True)
-          while True:
-              print("💻 Сервер працює стабільно в хмарі...", flush=True)
-              time.sleep(5)
-          INNER_EOF
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          cat << 'INNER_EOF' > Dockerfile
-          FROM python:3.11-slim
-          WORKDIR /app
-          COPY . .
-          CMD ["python", "app.py"]
-          INNER_EOF
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::325774504337:role/github-actions-ecr-role
+          aws-region: eu-central-1
 
-          docker build -t my-aws-app .
-          docker stop my-running-aws-server || true
-          docker rm my-running-aws-server || true
-          docker run -d --name my-running-aws-server my-aws-app
+      - name: Deploy to AWS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            mkdir -p ~/app && cd ~/app
+            
+            cat << 'INNER_EOF' > app.py
+            import time
+            print("🚀 Автоматичний сервер в AWS запустився!", flush=True)
+            while True:
+                print("💻 Сервер працює стабільно в хмарі...", flush=True)
+                time.sleep(5)
+            INNER_EOF
+
+            cat << 'INNER_EOF' > Dockerfile
+            FROM python:3.11-slim
+            WORKDIR /app
+            COPY . .
+            CMD ["python", "app.py"]
+            INNER_EOF
+
+            docker build -t my-aws-app .
+            docker stop my-running-aws-server || true
+            docker rm my-running-aws-server || true
+            docker run -d --name my-running-aws-server my-aws-app
