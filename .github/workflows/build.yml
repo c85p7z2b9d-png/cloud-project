@@ -26,6 +26,11 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build Docker image
         run: docker build -t my-app:v4 . 
+      - name: Tag Docker image
+        run: docker tag my-app:v4 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:v4
+
+      - name: Push Docker image
+        run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:v4
       - name: Deploy to AWS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
