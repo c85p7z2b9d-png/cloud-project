@@ -1,17 +1,17 @@
-
 name: Cloud Deploy Automation
 
 on:
   push:
-    branches: [ "main" ]
-    
+    branches: ["main"]
+
 permissions:
   contents: read
   id-token: write
-  
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,6 +22,9 @@ jobs:
           role-to-assume: arn:aws:iam::325774504337:role/github-actions-ecr-role
           aws-region: eu-central-1
 
+      - name: ECR Login
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Deploy to AWS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -29,11 +32,14 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            mkdir -p ~/app && cd ~/app
-            
+            mkdir -p ~/app
+            cd ~/app
+
             cat << 'INNER_EOF' > app.py
             import time
+
             print("🚀 Автоматичний сервер в AWS запустився!", flush=True)
+
             while True:
                 print("💻 Сервер працює стабільно в хмарі...", flush=True)
                 time.sleep(5)
@@ -41,8 +47,11 @@ jobs:
 
             cat << 'INNER_EOF' > Dockerfile
             FROM python:3.11-slim
+
             WORKDIR /app
+
             COPY . .
+
             CMD ["python", "app.py"]
             INNER_EOF
 
