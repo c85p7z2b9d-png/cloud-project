@@ -3,7 +3,11 @@ name: Cloud Deploy Automation
 on:
   push:
     branches: [ "main" ]
-
+    
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
