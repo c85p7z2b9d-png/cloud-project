@@ -1,5 +1,9 @@
-import time
-print("🚀 Хмарний застосунок успішно запустився!", flush=True)
-while True:
-    print("💻 Сервер працює стабільно...", flush=True)
-    time.sleep(5)
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello, Cloud!"
+
+app.run(host="0.0.0.0", port=80)
