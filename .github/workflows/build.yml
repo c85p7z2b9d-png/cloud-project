@@ -40,30 +40,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           envs: IMAGE_TAG
           script: |
-            mkdir -p ~/app
-            cd ~/app
-
-            cat << 'INNER_EOF' > app.py
-            import time
-
-            print("🚀 Автоматичний сервер в AWS запустився!", flush=True)
-
-            while True:
-                print("💻 Сервер працює стабільно в хмарі...", flush=True)
-                time.sleep(5)
-            INNER_EOF
-
-            cat << 'INNER_EOF' > Dockerfile
-            FROM python:3.11-slim
-
-            WORKDIR /app
-
-            COPY . .
-
-            CMD ["python", "app.py"]
-            INNER_EOF
-
-            docker build -t my-aws-app .
-            docker stop my-running-aws-server || true
-            docker rm my-running-aws-server || true
-            docker run -d --name my-running-aws-server my-aws-app
+           echo "Deploying image: $IMAGE_TAG"
