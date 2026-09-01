@@ -7,7 +7,8 @@ on:
 permissions:
   contents: read
   id-token: write
-
+env:
+  IMAGE_TAG: ${{ github.sha }}
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -37,6 +38,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_TAG
           script: |
             mkdir -p ~/app
             cd ~/app
