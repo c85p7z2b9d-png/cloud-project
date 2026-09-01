@@ -27,10 +27,10 @@ jobs:
       - name: Build Docker image
         run: docker build -t my-app:${{ github.sha }} .
       - name: Tag Docker image
-        run: docker tag my-app:v4 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:v4
+        run: docker tag my-app:${{ github.sha }} 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}
 
       - name: Push Docker image
-        run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:v4
+        run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}
       - name: Deploy to AWS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
