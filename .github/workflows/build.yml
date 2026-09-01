@@ -22,7 +22,12 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::325774504337:role/github-actions-ecr-role
           aws-region: eu-central-1
-
+      - name: Run command via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids i-0e028c261508c5b76 \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["echo Hello from SSM"]'
       - name: ECR Login
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build Docker image
