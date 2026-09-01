@@ -40,4 +40,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           envs: IMAGE_TAG
           script: |
-           aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 325774504337.dkr.ecr.eu-central-1.amazonaws.com
+           echo "Connected to: $(hostname)"
+           echo "Deploying image: $IMAGE_TAG"
