@@ -36,11 +36,29 @@ jobs:
 
       - name: Push Docker image
         run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}
-
-      
-      - name: Run command via SSM
+      - name: Deploy via SSM
         run: |
-          aws ssm send-command \
+          COMMAND_ID=$(aws ssm send-command \
             --instance-ids i-0e028c261508c5b76 \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 325774504337.dkr.ecr.eu-central-1.amazonaws.com","docker pull 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}"]'
+            --parameters 'commands=[
+              "aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 325774504337.dkr.ecr.eu-central-1.amazonaws.com",
+              "docker pull 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}",
+              "docker stop my-running-aws-server || true",
+              "docker rm my-running-aws-server || true",
+              "docker run -d -p 80:80 --name my-running-aws-server 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}"
+            ]' \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id i-0e028c261508c5b76
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id i-0e028c261508c5b76 \
+            --query '{Status:Status,Stdout:StandardOutputContent,Stderr:StandardErrorContent}' \
+            --output json
