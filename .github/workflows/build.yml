@@ -3,7 +3,7 @@ name: Cloud Deploy Automation
 on:
   push:
     branches: ["main"]
-
+  branch_protection_rule: 
 permissions:
   contents: read
   id-token: write
