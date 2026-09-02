@@ -1,7 +1,8 @@
- - name: Push Docker image
-  run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}
- - name: Deploy via SSM
-  run: |
+      - name: Push Docker image
+        run: docker push 325774504337.dkr.ecr.eu-central-1.amazonaws.com/my-app:${{ github.sha }}
+
+      - name: Deploy via SSM
+        run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids i-0e028c261508c5b76 \
             --document-name "AWS-RunShellScript" \
